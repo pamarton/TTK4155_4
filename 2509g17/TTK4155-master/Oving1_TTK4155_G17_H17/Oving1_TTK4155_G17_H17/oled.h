@@ -24,4 +24,17 @@ int oled_print_char_effect(char letter, char effect);
 void oled_reset(void);
 void oled_clear_line(unsigned int line);
 
+
+
+
+void sram_init(void);
+void sram_write(int rad,int kol, char data);
+void sram_write_and(int rad,int kol, char data);
+void sram_write_or(int rad,int kol, char data);
+void write_screen(void);
+
+void sram_pixel(int x, int y);
+
+int sram_write_char(char letter);
+
 #endif /* OLED_H_ */

@@ -29,6 +29,9 @@ void write_d(uint8_t data)
 	*oled_data = data;
 }
 
+
+
+
 void oled_ini(void)
 {
 	//Enable the external memory interface
@@ -58,8 +61,7 @@ void oled_ini(void)
 	write_c(0xa6);        //set  normal  display
 	write_c(0xaf);        //  display  on
 	
-	write_c(0xd3);			//offset fix on the screen
-	write_c(0x63);			//value of the offset
+	
 	oled_reset();
 	oled_home();
 
@@ -119,6 +121,8 @@ void oled_clear_line(unsigned int line){
 void oled_pos(unsigned int row,unsigned int column){
 	
 }
+
+
 int oled_print_char(char letter){
 	if(letter != '\0'){
 		for(unsigned int i = 0; i < 8; i++){
@@ -152,6 +156,69 @@ void oled_print_effect(char* letters, char effect){
 	while (oled_print_char_effect(letters[i++],effect)){
 	}
 }
+
+
+
+
+
+#define S_WITDTH 128
+#define S_HEIGHT 64
+#define WRITE_HEIGHT = S_HEIGHT/8;
+
+
+//char screendata[8][128][8]; //line, col, data(8)
+volatile char *ext_ram = (char *) 0x1800;
+
+
+
+int sram_write_char(char letter){
+	if(letter != '\0'){
+		for(unsigned int i = 0; i < 8; i++){
+			ext_ram[page*128 + col] = pgm_read_byte(&font[letter-' '][i]);
+			col++;
+		}
+		return 1;
+	}else{
+		return 0;
+	}
+}
+
+void sram_init(void){
+	for(unsigned int r = 0; r < 8; r++){
+		for(unsigned int k = 0; k < 128; k++){
+			ext_ram[r*128+k] = 0b00000000;
+		}
+	}
+}
+
+void sram_write(int rad, int kol, char data){
+	ext_ram[rad*128 + kol] = data;
+}
+
+void sram_write_and(int rad, int kol, char data){
+	ext_ram[rad*128 + kol] &= data;
+}
+
+void sram_write_or(int rad, int kol, char data){
+	ext_ram[rad*128 + kol] |= data;
+}
+
+void sram_pixel(int x, int y){
+	sram_write(x,y,(1<<(y%8)));
+}
+
+uint8_t tempchar = ' ';
+void write_screen(void){
+	oled_goto_line(0);
+	for(unsigned int r = 0; r < 1; r++){
+		for(unsigned int k = 0; k < 128; k++){
+			tempchar = ext_ram[r*128 + k];
+			write_d(tempchar);
+			
+		}
+	}
+}
+
 
 
 

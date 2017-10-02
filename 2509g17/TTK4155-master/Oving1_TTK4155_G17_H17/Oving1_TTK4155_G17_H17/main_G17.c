@@ -33,11 +33,21 @@ int main(void)
 {
 	
 	initalize();	
+	sram_init();
+	
+	sram_write_char('T');
+	for(int x = 0; x < 8; x++){
+		
+	}
+	sram_pixel(8,2);
+	sram_pixel(8,3);
+	sram_pixel(8,4);
+	write_screen();
+	
 	
 	while(1){
 		
-		
-		menu_update();
+		//menu_update();
 	}
 	
 	//testUart();

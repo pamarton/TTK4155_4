@@ -35,46 +35,51 @@ void calibrate_joystick(void){
 	calibrate_y /= CALIBRATE_READINGS;
 }
 
+
+
 int read_control_input(char channel){
 	switch(channel){
 		case 'X': 
-			ref_X = signal_to_range(readADC(1), 0, 255, -100, 100, calibrate_x, ref_X, 10); 
+			ref_X = signal_to_range(readADC(1), SIGNAL_MIN, SIGNAL_MAX, RANGE_MIN, RANGE_MAX, calibrate_x, ref_X, RESOLUTION); 
 			return ref_X;
 		case 'Y': 
-			ref_Y = signal_to_range(readADC(2), 0, 255, -100, 100, calibrate_y, ref_Y, 10);
+			ref_Y = signal_to_range(readADC(2), SIGNAL_MIN, SIGNAL_MAX, RANGE_MIN, RANGE_MAX, calibrate_y, ref_Y, RESOLUTION);
 			return ref_Y;
 		case 'L':
-		ref_L = signal_to_range(readADC(3), 0, 255, 0, 100, 0, ref_L, 10);
+		ref_L = signal_to_range(readADC(3), SIGNAL_MIN, SIGNAL_MAX, 0, RANGE_MAX, 0, ref_L, RESOLUTION);
 		return ref_L;
 		case 'R': 
-			ref_R = signal_to_range(readADC(4), 0, 255, 0, 100, 0, ref_R, 10);
+			ref_R = signal_to_range(readADC(4), SIGNAL_MIN, SIGNAL_MAX, 0, RANGE_MAX, 0, ref_R, RESOLUTION);
 			return ref_R;
 	}
 	return 0;
 }
 
 
-int signal_to_range(int signal, int signal_min, int signal_max, int output_min, int output_max, int calibrate, int referance, int step){
+int signal_to_range(int signal, int signal_min, int signal_max, int output_min, int output_max, int calibrate, int reference, int step){
 	
+	// Linear interpolation to map integer range of the converted joystick/slider signal [signal_min, signal_max] to [output_min, output_max]. 
+	// calibrate is an offset which is determined during the auto-calibration process at initialization.
 	int new_signal = (int)((double)output_min + (double)(signal + calibrate - signal_min)*(double)(output_max-output_min)/(double)(signal_max-signal_min));
 	
 		
+	
 	if (new_signal >= output_max - step){
-		referance = output_max;
+		reference = output_max;
 	}else if(new_signal <= output_min + step){
-		referance = output_min;
+		reference = output_min;
 	}else{
-		while (!(((new_signal < referance + step) && (new_signal > referance - step)))){
-			if((new_signal >= referance + step/2)){
-				referance += step;
+		while (!(((new_signal < reference + step) && (new_signal > reference - step)))){
+			if((new_signal >= reference + step/2)){
+				reference += step;
 			}
-			else if (new_signal <= referance - step/2){
-				referance -= step;
+			else if (new_signal <= reference - step/2){
+				reference -= step;
 			}
 			 
 		}
 	}
-	//printf("VALUE: \t%i\t%i\t%i\n",signal,new_signal, referance);
-	return referance;
+	//printf("VALUE: \t%i\t%i\t%i\n",signal,new_signal, reference);
+	return reference;
 }
 

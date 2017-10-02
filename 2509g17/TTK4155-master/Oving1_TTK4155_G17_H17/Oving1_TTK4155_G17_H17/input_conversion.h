@@ -11,7 +11,13 @@
 #include "uart.h"
 #include "adc.h"
 
-int signal_to_range(int signal, int signal_min, int signal_max, int output_min, int output_max, int calibrate, int referance, int step);
+#define SIGNAL_MAX 0xff //255 in decimal
+#define SIGNAL_MIN 0x00 //0 in decimal
+#define RANGE_MAX 100
+#define RANGE_MIN -RANGE_MAX
+#define RESOLUTION 10
+
+int signal_to_range(int signal, int signal_min, int signal_max, int output_min, int output_max, int calibrate, int reference, int step);
 void calibrate_joystick(void);
 void initialize_control_input(void);
 int read_control_input(char channel);
