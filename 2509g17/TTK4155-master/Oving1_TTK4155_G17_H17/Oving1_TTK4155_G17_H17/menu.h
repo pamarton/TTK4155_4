@@ -17,17 +17,19 @@
 #include <stdlib.h>//malloc
 typedef struct menu menu;
 
-struct menu {
-	PGM_P title;
-	int n_siblings;
-	menu * ptr_up;
-	menu * ptr_down;
-	menu * ptr_next;
-	menu * ptr_prev;
+struct menu  {
+	PGM_P title; //title of the menu entries
+	int n_sib; //number of siblings
+	
+	menu * ptr_self; //pointer to itself
+	menu * ptr_sib_up; //pointer to the sibling above
+	menu * ptr_sib_down; //pointher to the sibling bellow
+	menu * ptr_child; //pointer to the child 
+	menu * ptr_parent; //pointer to the parent
 };
 
 void menu_update(void);
 void initialize_menu(void);
-void setup_menu(menu * new_menu,menu * ptr_up, menu * ptr_down, menu * ptr_prev, menu * ptr_next,int n_siblings,PGM_P name);
+void setup_menu(menu * new_menu,menu * ptr_sib_up, menu * ptr_sib_down, menu * ptr_parent, menu * ptr_child,int n_sib,PGM_P title);
 
 #endif /* MENU_H_ */

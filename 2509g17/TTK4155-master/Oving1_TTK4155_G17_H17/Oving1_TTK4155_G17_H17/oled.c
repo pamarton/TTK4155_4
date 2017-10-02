@@ -76,13 +76,15 @@ void oled_home(void)
 {
 	page = 0;
 	col = 0;
-	write_c(0x21);
-	write_c(0x00);
-	write_c(0x7f);
 	
-	write_c(0x22);
-	write_c(0x00);
-	write_c(0x07);
+	
+	write_c(0x21); // set column (left to right)
+	write_c(0x00); // column start
+	write_c(0x7f); // column end
+	
+	write_c(0x22); // set row (top to bottom)
+	write_c(0x00); // row start
+	write_c(0x07); // row end
 	
 	write_c(0x00);
 	write_c(0x10);
@@ -97,6 +99,8 @@ void oled_goto_line(unsigned int line){
 		write_c(0xB0 | line);
 	}
 }
+
+
 void oled_goto_column(unsigned int column){
 	if(column > 128){
 		printf("parameter too big, oled_goto_column\n");

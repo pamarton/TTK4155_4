@@ -47,9 +47,13 @@ int main(void)
 	*/
 	
 	initialize_menu();
-	oled_print(__TIME__);
+	//oled_print_effect(__TIME__,STREAKTROUGH);
+	oled_reset();
+	menu_update();
+	oled_print_char(129);
 	while(1){
-		menu_update();
+		
+		
 	}
 	
 	//testUart();
@@ -71,7 +75,7 @@ void initalize(void){
 	
 	BIT_ON(SFIOR,XMM2);//HVORFOR GJORDE DE DETTE I OLED?
 	
-	initialize_menu();
+	//initialize_menu();
 	
 	initialize_control_input();
 	printf("control input successfully initialized\n\n");
