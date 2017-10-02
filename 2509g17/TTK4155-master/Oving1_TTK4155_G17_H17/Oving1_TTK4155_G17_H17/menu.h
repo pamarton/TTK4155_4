@@ -32,4 +32,8 @@ void menu_update(void);
 void initialize_menu(void);
 void setup_menu(menu * new_menu, menu * ptr_sib_down, menu * ptr_parent, menu * ptr_child,int n_sib,PGM_P title);
 int navigate_menu(void);
+
+
+#define NAVIGATION_TRHESHOLD 50
+
 #endif /* MENU_H_ */

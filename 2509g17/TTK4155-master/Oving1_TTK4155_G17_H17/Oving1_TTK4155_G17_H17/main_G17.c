@@ -33,25 +33,6 @@ int main(void)
 {
 	
 	initalize();	
-	oled_ini();
-	oled_reset();
-	/*
-	oled_print_effect("test", CENCORED);
-	oled_goto_line(2);
-	oled_print_char(128);
-	
-	oled_goto_line(3);
-	oled_print_char(129);
-	//char * abc = "penis\0";
-	//oled_print(abc);
-	*/
-	
-	initialize_menu();
-	//oled_print_effect(__TIME__,STREAKTROUGH);
-	oled_reset();
-	
-	
-	
 	
 	while(1){
 		
@@ -78,7 +59,8 @@ void initalize(void){
 	
 	BIT_ON(SFIOR,XMM2);//HVORFOR GJORDE DE DETTE I OLED?
 	
-	//initialize_menu();
+	oled_ini();
+	initialize_menu();
 	
 	initialize_control_input();
 	printf("control input successfully initialized\n\n");

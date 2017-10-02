@@ -59,7 +59,7 @@ void oled_ini(void)
 	write_c(0xaf);        //  display  on
 	
 	write_c(0xd3);			//offset fix on the screen
-	write_c(0x76);			//value of the offset
+	write_c(0x63);			//value of the offset
 	oled_reset();
 	oled_home();
 
@@ -94,9 +94,7 @@ void oled_home(void)
 void oled_goto_line(unsigned int line){
 	oled_home();
 	page = line;
-	if(line >= 8){
-		printf("parameter too big, oled_goto_line\n");
-	}else{
+	if(line < 8){
 		write_c(0x00);
 		write_c(0x10);
 		write_c(0xB0 | line);
@@ -105,10 +103,8 @@ void oled_goto_line(unsigned int line){
 
 
 void oled_goto_column(unsigned int column){
-	if(column > 128){
+	if(column <= 128){
 		printf("parameter too big, oled_goto_column\n");
-	}else{
-	
 	}
 }
 
@@ -117,21 +113,14 @@ void oled_clear_line(unsigned int line){
 		for(unsigned int i = 0; i < 128; i++){
 			write_d(0b00000000);
 		}
-	}else{
-		printf("parameter too big, oled_clear_line\n");
 	}
 } 
 
 void oled_pos(unsigned int row,unsigned int column){
-	if(row > 64 || column > 128){
-		printf("parameter too big, oled_pos\n");
-	}else{
-		
-	}
+	
 }
 int oled_print_char(char letter){
 	if(letter != '\0'){
-		//printf("%c",letter);
 		for(unsigned int i = 0; i < 8; i++){
 			 * oled_data = pgm_read_byte(&font[letter-' '][i]);
 		}
@@ -143,7 +132,6 @@ int oled_print_char(char letter){
 
 int oled_print_char_effect(char letter, char effect){
 	if(letter != '\0'){
-		//printf("%c",letter);
 		for(unsigned int i = 0; i < 8; i++){
 			* oled_data = pgm_read_byte(&font[letter-' '][i]) | effect;
 		}
@@ -152,7 +140,6 @@ int oled_print_char_effect(char letter, char effect){
 		return 0;
 	}
 }
-
 
 void oled_print(char* letters){
 	unsigned int i = 0;
