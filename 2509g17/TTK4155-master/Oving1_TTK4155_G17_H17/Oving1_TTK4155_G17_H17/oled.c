@@ -58,15 +58,16 @@ void oled_ini(void)
 	write_c(0xa6);        //set  normal  display
 	write_c(0xaf);        //  display  on
 	
+	write_c(0xd3);			//offset fix on the screen
+	write_c(0x76);			//value of the offset
+	oled_reset();
+	oled_home();
 
 }
 
 
 void oled_reset(void)
-{	
-	oled_home();
-	oled_goto_line(0);
-	
+{		
 	for(int i = 0; i < 8;i++){
 		oled_clear_line(i);
 	}
@@ -84,13 +85,15 @@ void oled_home(void)
 	
 	write_c(0x22); // set row (top to bottom)
 	write_c(0x00); // row start
-	write_c(0x07); // row end
+	write_c(0x7); // row end
 	
-	write_c(0x00);
-	write_c(0x10);
+	//write_c(0x00);
+	//write_c(0x10);
 }
 
 void oled_goto_line(unsigned int line){
+	oled_home();
+	page = line;
 	if(line >= 8){
 		printf("parameter too big, oled_goto_line\n");
 	}else{

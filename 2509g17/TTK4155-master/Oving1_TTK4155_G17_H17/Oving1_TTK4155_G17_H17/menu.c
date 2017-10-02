@@ -9,9 +9,9 @@
 menu* current_head;
 menu* current_selected;
 
-void setup_menu(menu * new_menu,menu * ptr_sib_up, menu * ptr_sib_down, menu * ptr_parent, menu * ptr_child,int n_sib,PGM_P title){
-	new_menu->ptr_self = new_menu;
-	new_menu->ptr_sib_up = ptr_sib_up;
+void setup_menu(menu * new_menu, menu * ptr_sib_down, menu * ptr_parent, menu * ptr_child,int n_sib,PGM_P title){
+	//new_menu->ptr_self = new_menu;
+	//new_menu->ptr_sib_up = ptr_sib_up;
 	new_menu->ptr_sib_down = ptr_sib_down;
 	new_menu->ptr_child = ptr_child;
 	new_menu->ptr_parent = ptr_parent;
@@ -52,16 +52,16 @@ menu debug_1;
 menu debug_2;
 menu debug_3;
 menu mainmenu_0;
-menu mainmenu_1;
-menu mainmenu_2;
-menu mainmenu_3;
+menu mainmenu_1;//Highscore
+//menu mainmenu_2;
+//menu mainmenu_3;
 
 void initialize_menu(void){
-	setup_menu(&highscore_0,&highscore_2,&highscore_1,NULL,NULL,3,highscore_entry_0);
-	setup_menu(&highscore_1,&highscore_0,&highscore_2,NULL,NULL,3,highscore_entry_1);
-	setup_menu(&highscore_2,&highscore_1,&highscore_0,NULL,NULL,3,highscore_entry_2);
-	current_head = highscore_0.ptr_self;
-	current_selected = highscore_1.ptr_self;
+	setup_menu(&highscore_0,&highscore_1,&mainmenu_1,NULL,3,highscore_entry_0);
+	setup_menu(&highscore_1,&highscore_2,&mainmenu_1,NULL,3,highscore_entry_1);
+	setup_menu(&highscore_2,&highscore_0,&mainmenu_1,NULL,3,highscore_entry_2);
+	current_head = &highscore_0;
+	current_selected = &highscore_1;
 	//printf("%i\n",highscore_0.ptr_sib_down);
 	//printf("%i\n",current_head->ptr_self);
 	//strcpy_P(temp,(current_head->title));
@@ -122,17 +122,46 @@ void initialize_menu(void){
 	
 
 void menu_update(void){
-	
-	for(int counter = 0 ; counter < current_head->n_sib; counter++){
-		//strcpy_P(temp,current_head->title);
-		//printf("%s %i\n",temp,counter);
-		//oled_goto_line(counter);
-		//oled_print(temp);
-		oled_goto_line(2);
-		oled_print("test");
-		if(current_selected == current_head){
-			oled_print(" <-");
+	if(navigate_menu()==1){
+		for (int i = 0; i < current_head->n_sib; i++)
+		{
+			oled_goto_line(i);
+			
+			strcpy_P(temp,current_head->title);
+			if(current_head == current_selected){
+				oled_print_char(129);
+				}else{
+				oled_print_char(128);
+			}
+			oled_print(temp);
+			current_head = current_head->ptr_sib_down;
+			
 		}
-		current_head = current_head->ptr_sib_down;
+	}
+	
+	
+	
+	
+	
+}
+
+int x = 0;
+int y = 0;
+#define NAVIGATION_TRHESHOLD 50
+int navigate_menu(void){
+	int joystick_reading = read_control_input('Y');
+	if(joystick_reading > NAVIGATION_TRHESHOLD && x <= NAVIGATION_TRHESHOLD){
+		for(int i = 0; i < current_selected->n_sib-1; i++){
+			current_selected = current_selected->ptr_sib_down;
+		}
+		x = 100;
+		return 1;
+	}else if (joystick_reading < -NAVIGATION_TRHESHOLD && x >= -NAVIGATION_TRHESHOLD)
+	{
+		current_selected = current_selected->ptr_sib_down;
+		x = -100;
+		return 1;
+	}else if(joystick_reading < NAVIGATION_TRHESHOLD && joystick_reading > -NAVIGATION_TRHESHOLD){
+		x = 0;
 	}
 }

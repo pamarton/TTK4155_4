@@ -49,11 +49,14 @@ int main(void)
 	initialize_menu();
 	//oled_print_effect(__TIME__,STREAKTROUGH);
 	oled_reset();
-	menu_update();
-	oled_print_char(129);
+	
+	
+	
+	
 	while(1){
 		
 		
+		menu_update();
 	}
 	
 	//testUart();
