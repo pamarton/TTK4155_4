@@ -19,7 +19,6 @@ void initalize_interrupts(void){
 	
 	BIT_ON(GICR, INT0);//enabling the interrupts INT0 and INT1 in the memory ???????????????????? 21.09.17
 	BIT_ON(GICR, INT1);
-	sei();//enabling interrupts globaly
 }
 
 

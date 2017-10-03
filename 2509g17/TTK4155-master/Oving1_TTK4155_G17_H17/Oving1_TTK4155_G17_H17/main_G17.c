@@ -32,17 +32,31 @@ void initalize(void);
 int main(void)
 {
 	
-	initalize();	
-	sram_init();
+	initalize();
 	
-	sram_write_char('T');
-	for(int x = 0; x < 8; x++){
-		
-	}
-	sram_pixel(8,2);
-	sram_pixel(8,3);
-	sram_pixel(8,4);
+	sram_init();
+	sram_write_char('W');
+	
+	//sram_draw_line(0,0,63,31);
+	//sram_draw_line(64,31,127,0);
+	//sram_draw_circle(64,32,71);
 	write_screen();
+	sram_draw_circle(64,32,61);
+	write_screen();
+	//sram_draw_circle(64,32,51);
+	write_screen();
+	//sram_draw_circle(64,32,41);
+	write_screen();
+	sram_draw_circle(64,32,31);
+	write_screen();
+	//sram_draw_circle(64,32,21);
+	write_screen();
+	
+	sram_write_string("HI there!");
+	//sram_draw_circle(64,32,11);
+	write_screen();
+	printf("test");
+	
 	
 	
 	while(1){
@@ -61,7 +75,7 @@ int main(void)
 
 
 void initalize(void){
-	
+	cli();//disable interrupts
 	init_UART(UBBR);
 	printf("LOADING g17_%s %s %s\nINITIALIZING...\n\nUART successfully initialized\n\n", VERSION,__DATE__,__TIME__);
 	BIT_ON(MCUCR,SRE); //SET THIS IN SOME INITALIZE FUNBCTION
@@ -70,6 +84,7 @@ void initalize(void){
 	BIT_ON(SFIOR,XMM2);//HVORFOR GJORDE DE DETTE I OLED?
 	
 	oled_ini();
+	printf("OLED successfully initialized\n");
 	initialize_menu();
 	
 	initialize_control_input();
@@ -80,10 +95,11 @@ void initalize(void){
 	printf("Interrupts successfully initialized\n");
 	printf("Interrupts activated\n");
 	printf("\nINITIALIZATION COMPLETE\n");
+	sei();//enable interrupts
 }
 
 #include <stdlib.h>
-void SRAM_test(void)
+void SRAM_test(void)//CAN BE REMOVED, IN CASE OF LOW STORAGE
 {
 	volatile char *ext_ram = (char *) 0x1800; // Start address for the SRAM
 	uint16_t ext_ram_size = 0x800;

@@ -30,8 +30,6 @@ void write_d(uint8_t data)
 }
 
 
-
-
 void oled_ini(void)
 {
 	//Enable the external memory interface
@@ -92,6 +90,8 @@ void oled_home(void)
 	//write_c(0x00);
 	//write_c(0x10);
 }
+
+
 
 void oled_goto_line(unsigned int line){
 	oled_home();
@@ -158,8 +158,9 @@ void oled_print_effect(char* letters, char effect){
 }
 
 
-
-
+unsigned int page_sram = 0;
+unsigned int col_sram = 0;
+char edited = 0b00000000;//11111111; //so that the screen updates on first go
 
 #define S_WITDTH 128
 #define S_HEIGHT 64
@@ -169,14 +170,19 @@ void oled_print_effect(char* letters, char effect){
 //char screendata[8][128][8]; //line, col, data(8)
 volatile char *ext_ram = (char *) 0x1800;
 
-
+void sram_write_string(char letters[]){
+	unsigned int i = 0;
+	while (sram_write_char(letters[i++])){
+	}
+}
 
 int sram_write_char(char letter){
 	if(letter != '\0'){
 		for(unsigned int i = 0; i < 8; i++){
-			ext_ram[page*128 + col] = pgm_read_byte(&font[letter-' '][i]);
-			col++;
+			ext_ram[page_sram*128 + col_sram] = pgm_read_byte(&font[letter-' '][i]);
+			col_sram++;
 		}
+		edited |= (0b00000001 << page_sram);
 		return 1;
 	}else{
 		return 0;
@@ -189,34 +195,73 @@ void sram_init(void){
 			ext_ram[r*128+k] = 0b00000000;
 		}
 	}
+	edited = 0b11111111;
 }
 
-void sram_write(int rad, int kol, char data){
-	ext_ram[rad*128 + kol] = data;
+void sram_write(int page, int col, char data){
+	ext_ram[page*128 + col] = data;
+	edited |= 1 << page;
 }
 
-void sram_write_and(int rad, int kol, char data){
-	ext_ram[rad*128 + kol] &= data;
+void sram_write_and(int page, int col, char data){
+	ext_ram[page*128 + col] &= data;
+	edited |= 1 << page;
 }
 
-void sram_write_or(int rad, int kol, char data){
-	ext_ram[rad*128 + kol] |= data;
+void sram_write_or(int page, int col, char data){
+	ext_ram[page*128 + col] |= data;
+	edited |= 1 << page;
 }
 
-void sram_pixel(int x, int y){
-	sram_write(x,y,(1<<(y%8)));
+int sram_pixel(int x, int y){
+	if(x >= 0 && x < 128 && y >= 0 && y < 64){
+		sram_write_or((y/8),x,(1<<(y%8)));
+		return 1;
+	}
+	return 0;
 }
 
-uint8_t tempchar = ' ';
-void write_screen(void){
-	oled_goto_line(0);
-	for(unsigned int r = 0; r < 1; r++){
-		for(unsigned int k = 0; k < 128; k++){
-			tempchar = ext_ram[r*128 + k];
-			write_d(tempchar);
-			
+void sram_draw_line(int x0, int y0, int x1, int y1){
+	if(x0 != x1){//CANT DIVIDE BY ZERO!
+		double gradient = ((double)(y1-y0)/(double)(x1-x0));
+		for(double x = x0; x < x1; x += 0.1){
+			sram_pixel(x,(gradient*(x-x0))+y0);
 		}
 	}
+}
+
+void sram_draw_circle(int x0, int y0, int radius){
+	for(double x = -radius; x <= radius; x += 0.02){
+		sram_pixel(x+x0,y0-sqrt((pow(radius,2)-pow(x,2))));
+		sram_pixel(-x+x0,y0+sqrt((pow(radius,2)-pow(x,2))));
+	}
+}
+
+
+void write_screen(void){//update all the pages that are edited
+	int line = 0;
+	while (edited != 0b00000000){ //if there is an edited page it will update
+		char current_page = 1 << line; //going 1 at a time
+		if(current_page & edited){ //checks if the page is edited
+			oled_goto_line(line);//changing the line to the edited one
+			for(unsigned int k = 0; k < 128; k++){//cycling through the columns in the edited page
+				write_d(ext_ram[line*128 + k]);//printing the column from memory
+			}			
+		} 
+		edited &= ~(current_page);//removes the edited-flag for this line
+		line++;//check next line!
+		current_page = 1 << line;
+		
+	}
+	
+	/*
+	
+	for(unsigned int r = 0b00000001; r =0; r<<1){//old code that updates everything
+		oled_goto_line(r);
+		for(unsigned int k = 0; k < 128; k++){
+			write_d(ext_ram[r*128 + k]);
+		}
+	}*/
 }
 
 

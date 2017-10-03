@@ -33,8 +33,10 @@ void sram_write_and(int rad,int kol, char data);
 void sram_write_or(int rad,int kol, char data);
 void write_screen(void);
 
-void sram_pixel(int x, int y);
-
+int sram_pixel(int x, int y);
+void sram_draw_line(int x0, int y0, int x1, int y1);
 int sram_write_char(char letter);
+void sram_write_string(char letters[]);
+void sram_draw_circle(int x0, int y0, int radius);
 
 #endif /* OLED_H_ */
