@@ -73,34 +73,64 @@ void initialize_menu(void){
 	current_selected = &mainmenu_0;
 	
 }
-	
 
 void menu_update(void){
 	if(navigate_menu()){
-		oled_reset();
+		for (int j = 0; j < 7; j++)
+		{
+			sram_clear_line(j);
+		}
+		sram_clear_line(0);
+		sram_clear_line(1);
+		sram_clear_line(2);
+		sram_clear_line(3);
+		//sram_init();
+		
 		for (int i = 0; i < current_head->n_sib; i++)
 		{
 			oled_goto_line(i);
-			
+			oled_goto_column(0);
 			strcpy_P(temp,current_head->title);
 			
 			
-			oled_print_char(128 + (current_head == current_selected));
-			
-			oled_print(temp);
-			
+			//oled_print_char(128 + (current_head == current_selected));
+			sram_write_char(128 + (current_head == current_selected));
+			//oled_print(temp);
+			sram_write_string(temp);
 			current_head = current_head->ptr_sib_down;
-			
 		}
-	}	
+		
+	}
+	sram_scroll_data(7);
+	write_screen();
 }
 
 
-// x_lock and y_lock are used to lock menu navigation to one instant each joystick movement.
-int x_lock = 0;
-int y_lock = 0;
 
 int navigate_menu(void){
+	int joystick_reading_x = read_control_input('X');
+	int joystick_reading_y = read_control_input('Y');
+	
+	if(joystick_reading_y > NAVIGATION_TRHESHOLD){
+		for(int i = 0; i < current_selected->n_sib-1; i++){
+			current_selected = current_selected->ptr_sib_down;
+		}
+	}
+	else if (joystick_reading_y < -NAVIGATION_TRHESHOLD){
+		current_selected = current_selected->ptr_sib_down;
+	}
+	else if(joystick_reading_x > NAVIGATION_TRHESHOLD && current_selected->ptr_child != NULL){;
+		current_head = current_selected->ptr_child;
+		current_selected = current_selected->ptr_child;
+		//USE FUNCTIONS HERE
+	}
+	else if (joystick_reading_x < -NAVIGATION_TRHESHOLD && current_selected->ptr_parent != NULL){
+		current_head = current_head->ptr_parent;
+		current_selected = current_selected->ptr_parent;
+	}else{
+	}
+	return 1;
+	/*
 	
 	// Navigate up/down, i.e. navigate within the displayed menu.
 	int joystick_reading = read_control_input('Y');
@@ -192,7 +222,7 @@ int navigate_menu(void){
 	}else if(joystick_reading < NAVIGATION_TRHESHOLD && joystick_reading > -NAVIGATION_TRHESHOLD){
 		x_lock = 0;
 	}
-	
+	*/
 	return 0;
 }
 

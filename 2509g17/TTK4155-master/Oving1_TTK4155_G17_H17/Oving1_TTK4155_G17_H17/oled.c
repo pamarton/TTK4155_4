@@ -11,6 +11,9 @@
 #include "input_conversion.h"
 #include <avr/io.h>
 
+unsigned int page_sram = 0;
+unsigned int col_sram = 0;
+char edited = 0b00000000;//11111111; //so that the screen updates on first go
 
 
 volatile char *oled_cmd = (char *) 0x1000; // Start address for the OLED_Command
@@ -75,8 +78,8 @@ void oled_reset(void)
 
 void oled_home(void)
 {
-	page = 0;
-	col = 0;
+	page_sram = 0;
+	col_sram = 0;
 	
 	
 	write_c(0x21); // set column (left to right)
@@ -95,8 +98,8 @@ void oled_home(void)
 
 void oled_goto_line(unsigned int line){
 	oled_home();
-	page = line;
-	if(line < 8){
+	page_sram = line;
+	if(line%8){
 		write_c(0x00);
 		write_c(0x10);
 		write_c(0xB0 | line);
@@ -105,12 +108,11 @@ void oled_goto_line(unsigned int line){
 
 
 void oled_goto_column(unsigned int column){
-	if(column <= 128){
-		printf("parameter too big, oled_goto_column\n");
-	}
+	col_sram = column%128;
 }
 
 void oled_clear_line(unsigned int line){
+	oled_goto_line(line);
 	if(line < 8){
 		for(unsigned int i = 0; i < 128; i++){
 			write_d(0b00000000);
@@ -119,7 +121,7 @@ void oled_clear_line(unsigned int line){
 } 
 
 void oled_pos(unsigned int row,unsigned int column){
-	
+
 }
 
 
@@ -158,9 +160,6 @@ void oled_print_effect(char* letters, char effect){
 }
 
 
-unsigned int page_sram = 0;
-unsigned int col_sram = 0;
-char edited = 0b00000000;//11111111; //so that the screen updates on first go
 
 #define S_WITDTH 128
 #define S_HEIGHT 64
@@ -176,8 +175,13 @@ void sram_write_string(char letters[]){
 	}
 }
 
+
 int sram_write_char(char letter){
-	if(letter != '\0'){
+	if (letter == '\n'){
+		page_sram = (page_sram+1)%8;
+		col_sram = 0;
+		return 1;
+	}else if(letter != '\0'){
 		for(unsigned int i = 0; i < 8; i++){
 			ext_ram[page_sram*128 + col_sram] = pgm_read_byte(&font[letter-' '][i]);
 			col_sram++;
@@ -264,6 +268,24 @@ void write_screen(void){//update all the pages that are edited
 	}*/
 }
 
+void sram_clear_line(unsigned int line){
+	oled_goto_line(line);
+	if(line < 8){
+		for(unsigned int i = 0; i < 128; i++){
+			ext_ram[line*128 + i] = 0b00000000;
+		}
+		edited |= 1 << line;
+	}
+}
 
+
+void sram_scroll_data(int line){
+	char tempdata = ext_ram[line*128];
+	for(unsigned int i = 0; i < 128; i++){
+		ext_ram[line*128 + i] = ext_ram[line*128 + i + 1];
+	}
+	ext_ram[line*128 + 127] = tempdata;
+	edited |= 1 << line;
+}
 
 

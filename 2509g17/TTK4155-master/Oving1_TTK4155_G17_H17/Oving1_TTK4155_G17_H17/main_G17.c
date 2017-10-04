@@ -35,33 +35,12 @@ int main(void)
 	initalize();
 	
 	sram_init();
-	sram_write_char('W');
-	
-	//sram_draw_line(0,0,63,31);
-	//sram_draw_line(64,31,127,0);
-	//sram_draw_circle(64,32,71);
-	write_screen();
-	sram_draw_circle(64,32,61);
-	write_screen();
-	//sram_draw_circle(64,32,51);
-	write_screen();
-	//sram_draw_circle(64,32,41);
-	write_screen();
-	sram_draw_circle(64,32,31);
-	write_screen();
-	//sram_draw_circle(64,32,21);
-	write_screen();
-	
-	sram_write_string("HI there!");
-	//sram_draw_circle(64,32,11);
-	write_screen();
-	printf("test");
-	
-	
+	oled_goto_line(7);
+	sram_write_string("          <---<<");//loading animation
 	
 	while(1){
-		
-		//menu_update();
+		_delay_ms(100);
+		menu_update();
 	}
 	
 	//testUart();
@@ -79,11 +58,14 @@ void initalize(void){
 	init_UART(UBBR);
 	printf("LOADING g17_%s %s %s\nINITIALIZING...\n\nUART successfully initialized\n\n", VERSION,__DATE__,__TIME__);
 	BIT_ON(MCUCR,SRE); //SET THIS IN SOME INITALIZE FUNBCTION
-	
-	
 	BIT_ON(SFIOR,XMM2);//HVORFOR GJORDE DE DETTE I OLED?
 	
 	oled_ini();
+	sram_init();
+	sram_write_string("BOOTING\nSCREEN");
+	write_screen();
+	
+	
 	printf("OLED successfully initialized\n");
 	initialize_menu();
 	
@@ -136,3 +118,11 @@ void SRAM_test(void)//CAN BE REMOVED, IN CASE OF LOW STORAGE
 
 
 
+void bootscreen(void){
+	
+	
+	
+	
+	
+	
+}

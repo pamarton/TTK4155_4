@@ -12,7 +12,7 @@
 #include <avr/pgmspace.h>
 #include "uart.h"
 #include "input_conversion.h"
-
+#include "button_interrupts.h"
 
 #include <stdlib.h>//malloc
 typedef struct menu menu;
@@ -32,10 +32,7 @@ void menu_update(void);
 void initialize_menu(void);
 void setup_menu(menu * new_menu, menu * ptr_sib_down, menu * ptr_parent, menu * ptr_child,int n_sib,PGM_P title);
 int navigate_menu(void);
-
-
-
-
+void sram_clear_line(unsigned int line);
 #define NAVIGATION_TRHESHOLD 70
 
 #endif /* MENU_H_ */
